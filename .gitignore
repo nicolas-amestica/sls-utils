@@ -1,0 +1,6 @@
+/.dynamodb
+/node_modules
+/config/config.dev.json
+/config/config.qa.json
+/config/config.prod.json
+/config/config.local.json
