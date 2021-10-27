@@ -25,7 +25,7 @@ module.exports.createUser = async (event) => {
 
         let { ...user } = JSON.parse(event.body);
 
-        const result = await User.createUser(user, process.env.TABLE_USUARIO);
+        const result = await User.createUser(user, process.env.TABLE_USUARIO_DYNAMODB);
 
         // VERIFICA QUE HAYAN RESULTADOS
         if (!result) {

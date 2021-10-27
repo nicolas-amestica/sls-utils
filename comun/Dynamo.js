@@ -1,10 +1,14 @@
 const AWS = require('aws-sdk');
-const { Responses } = require('./API_Responses');
 
-const options = {
-    region: 'localhost',
-    endpoint: 'http://localhost:8000'
+let options = {}
+
+if (process.env.IS_OFFLINE) {
+    options = {
+        region: 'localhost',
+        endpoint: 'http://localhost:8000'
+    }
 }
+
 
 const documentClient = new AWS.DynamoDB.DocumentClient(options);
 

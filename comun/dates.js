@@ -1,4 +1,4 @@
-
+'use strict';
 module.exports.agregarDias = function (date, days) {
 
     try {

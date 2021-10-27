@@ -2,74 +2,6 @@
 const fs = require('fs').promises;
 const ObjectsToCsv = require('objects-to-csv-file');
 
-module.exports.createFileProceso1 = async (data) => {
-
-    try {
-
-        let urls = []
-
-        stringify(data.pendientesLiquidar.data, {
-            header: true,
-            delimiter: ';'
-        }, function (err, output) {
-            fs.writeFile(`${process.env.PATH_REPORT_CSV_TMP}${process.env.N_PENDIENTES_LIQUIDACION}.csv`, output);
-        });
-        urls.push({name: `${process.env.N_PENDIENTES_LIQUIDACION}.csv`, path: `${process.env.PATH_REPORT_CSV_TMP}${process.env.N_PENDIENTES_LIQUIDACION}.csv`});
-
-        stringify(data.sinCategorias.data, {
-            header: true,
-            delimiter: ';'
-        }, function (err, output) {
-            fs.writeFile(`${process.env.PATH_REPORT_CSV_TMP}${process.env.N_SIN_CATEGORIA}.csv`, output);
-        });
-        urls.push({name: `${process.env.N_SIN_CATEGORIA}.csv`, path: `${process.env.PATH_REPORT_CSV_TMP}${process.env.N_SIN_CATEGORIA}.csv`});
-
-        return {
-            message: "Archivos CSV's creados correctamente.",
-            data: urls
-        }
-
-    } catch (error) {
-
-        return { error };
-
-    }
-
-};
-
-module.exports.deleteFileProceso1 = async () => {
-
-    let deleteFilePendientesLiquidar;
-    let deleteFileSinCategorias;
-
-    try {
-
-        // try {
-            // if (fs.existsSync(`${process.env.PATH_REPORT_CSV_TMP}${process.env.N_PENDIENTES_LIQUIDACION}.csv`)) {
-                deleteFilePendientesLiquidar = await fs.unlinkSync(`${process.env.PATH_REPORT_CSV_TMP}${process.env.N_PENDIENTES_LIQUIDACION}.csv`);
-            // }
-  
-            // if (fs.existsSync(`${process.env.PATH_REPORT_CSV_TMP}${process.env.N_SIN_CATEGORIA}.csv`)) {
-                deleteFileSinCategorias = await fs.unlinkSync(`${process.env.PATH_REPORT_CSV_TMP}${process.env.N_SIN_CATEGORIA}.csv`);
-            // }
-        //   } catch(err) {
-        //     console.error(err)
-        //   }
-
-        return {
-            message: "Reportes eliminados correctamente."
-        }
-
-    } catch (error) {
-
-        console.log(error);
-
-        return { error };
-
-    }
-
-};
-
 module.exports.deleteFile = async (filePath) => {
 
     try {
@@ -92,7 +24,7 @@ module.exports.exportData = async (data, fileName) => {
 
     try {
 
-        const fullPathFile = `${process.env.PATH_REPORT_CSV_TMP}${fileName}.csv`;
+        const fullPathFile = `${process.env.TMP_FOLDER}${fileName}.csv`;
 
         const csv = new ObjectsToCsv(data);
 

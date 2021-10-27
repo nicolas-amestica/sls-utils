@@ -1,4 +1,4 @@
-service: sls-utils
+service: sls-svl-utils
 
 plugins:
   - serverless-plugin-include-dependencies
@@ -11,9 +11,9 @@ custom:
   apiGatewayCaching:                        # DESABILITA EL CACHÉ DE FORMA GLOBAL AL CONSULTAR EL ENDPOINT (DE TODAS FORMAS ES NECESARIO INDICARLOS EN CADA ENDPOINT)
     enabled: false
   s3:                                       # SERVERLESS-S3-LOCAL CONFIGURACION
-    host: ${file(./config/config.${self:provider.stage}.json):BUCKET_S3_LOCAL.CONFIG.ENDPOINT}
-    port: ${file(./config/config.${self:provider.stage}.json):BUCKET_S3_LOCAL.CONFIG.PORT}
-    directory: ${file(./config/config.${self:provider.stage}.json):BUCKET_S3_LOCAL.CONFIG.DIRECTORY}
+    host: ${file(./config/config.${self:provider.stage}.json):PROJECT_CONFIG.BUCKET_S3_CONFIG.ENDPOINT}
+    port: ${file(./config/config.${self:provider.stage}.json):PROJECT_CONFIG.BUCKET_S3_CONFIG.PORT}
+    directory: ${file(./config/config.${self:provider.stage}.json):PROJECT_CONFIG.BUCKET_S3_CONFIG.DIRECTORY}
     # cors: true
     # noStart: true
   dynamodb:
@@ -27,23 +27,12 @@ custom:
       migrate: true
       seed: true
       convertEmptyValues: true
-      # noStart: true
-  v_login: "v1"  
-  v_get_initial_pending_liquidation_report: "v2"
-  v_get_initial_without_category_report: "v2"
-  v_get_initial_update_international_sales: "v2"
-  v_format_document: "v1"
-  v_update_excel: "v1"
-  v_update_folios: "v1"
-  v_get_final_pending_liquidation_report: "v2"
-  v_get_final_sellers_report: "v2"
-  v_get_final_sales_report: "v2"
-  v_update_sku: "v1"
-  v_add_folio: "v1"
-  v_cancel_folio: "v1"
-  v_negative_folio: "v1"
-  v_create_script: "v1"
+    migration: offline/migrations
+  v_login: "v1"
   v_create_user: "v1"
+  v_get_user: "v1"
+  v_list_users: "v1"
+  v_delete_user: "v1"
 
 frameworkVersion: '2'
 
@@ -68,71 +57,48 @@ provider:
 
     PROJECT_NAME: ${file(./config/config.${self:provider.stage}.json):PROJECT_NAME}
 
-    SEED_TOKEN: ${file(./config/config.${self:provider.stage}.json):SEED_TOKEN}
-    EXPIRE_TOKEN: ${file(./config/config.${self:provider.stage}.json):SEED_EXPIRE}
+    SEED_TOKEN: ${file(./config/config.${self:provider.stage}.json):AUTHORIZATION.TOKEN.SEED_TOKEN}
+    EXPIRE_TOKEN: ${file(./config/config.${self:provider.stage}.json):AUTHORIZATION.TOKEN.SEED_EXPIRE}
 
-    TABLE_USUARIO: ${file(./config/config.${self:provider.stage}.json):DB_TABLES.USUARIO}
+    BUSINESS: ${file(./config/config.${self:provider.stage}.json):PROJECT_CONFIG.BUSINESS}
+    COUNTRIES: ${file(./config/config.${self:provider.stage}.json):PROJECT_CONFIG.COUNTRIES}
 
-    DB_HOST_FINANCES: ${file(./config/config.${self:provider.stage}.json):BD_FINANCES.HOST_DB}
-    DB_NAME_FINANCES: ${file(./config/config.${self:provider.stage}.json):BD_FINANCES.NAME_DB}
-    DB_USUARIO_FINANCES: ${file(./config/config.${self:provider.stage}.json):BD_FINANCES.USUARIO_DB}
-    DB_PASS_FINANCES: ${file(./config/config.${self:provider.stage}.json):BD_FINANCES.PASS_DB}
-    DB_ENCRYPT_FINANCES: ${file(./config/config.${self:provider.stage}.json):BD_FINANCES.ENCRYPT}
-    DB_ENABLEARITHABORT_FINANCES: ${file(./config/config.${self:provider.stage}.json):BD_FINANCES.ENABLEARITHABORT}
+    TMP_FOLDER: ${file(./config/config.${self:provider.stage}.json):PROJECT_CONFIG.TEMPORARY_FOLDER}
 
-    DB_HOST_USER: ${file(./config/config.${self:provider.stage}.json):BD_USUARIOS.HOST_DB}
-    DB_NAME_USER: ${file(./config/config.${self:provider.stage}.json):BD_USUARIOS.NAME_DB}
-    DB_USUARIO_USER: ${file(./config/config.${self:provider.stage}.json):BD_USUARIOS.USUARIO_DB}
-    DB_PASS_USER: ${file(./config/config.${self:provider.stage}.json):BD_USUARIOS.PASS_DB}
-    DB_ENCRYPT_USER: ${file(./config/config.${self:provider.stage}.json):BD_USUARIOS.ENCRYPT}
-    DB_ENABLEARITHABORT_USER: ${file(./config/config.${self:provider.stage}.json):BD_USUARIOS.ENABLEARITHABORT}
+    TABLE_USUARIO_DYNAMODB: ${file(./config/config.${self:provider.stage}.json):DATA_BASE_CREATION.AWS.DYNAMODB.TABLES.USUARIO}
 
-    DB_HOST_PRODUCT: ${file(./config/config.${self:provider.stage}.json):BD_PRODUCTOS.HOST_DB}
-    DB_NAME_PRODUCT: ${file(./config/config.${self:provider.stage}.json):BD_PRODUCTOS.NAME_DB}
-    DB_USUARIO_PRODUCT: ${file(./config/config.${self:provider.stage}.json):BD_PRODUCTOS.USUARIO_DB}
-    DB_PASS_PRODUCT: ${file(./config/config.${self:provider.stage}.json):BD_PRODUCTOS.PASS_DB}
-    DB_ENCRYPT_PRODUCT: ${file(./config/config.${self:provider.stage}.json):BD_PRODUCTOS.ENCRYPT}
-    DB_ENABLEARITHABORT_PRODUCT: ${file(./config/config.${self:provider.stage}.json):BD_PRODUCTOS.ENABLEARITHABORT}
+    DB_HOST_FINANCES: ${file(./config/config.${self:provider.stage}.json):DATA_BASES_CONNECTION.FINANCES.HOST_DB}
+    DB_NAME_FINANCES: ${file(./config/config.${self:provider.stage}.json):DATA_BASES_CONNECTION.FINANCES.NAME_DB}
+    DB_USUARIO_FINANCES: ${file(./config/config.${self:provider.stage}.json):DATA_BASES_CONNECTION.FINANCES.USUARIO_DB}
+    DB_PASS_FINANCES: ${file(./config/config.${self:provider.stage}.json):DATA_BASES_CONNECTION.FINANCES.PASS_DB}
+    DB_ENCRYPT_FINANCES: ${file(./config/config.${self:provider.stage}.json):DATA_BASES_CONNECTION.FINANCES.ENCRYPT}
+    DB_ENABLEARITHABORT_FINANCES: ${file(./config/config.${self:provider.stage}.json):DATA_BASES_CONNECTION.FINANCES.ENABLEARITHABORT}
 
-    DB_HOST_1_ORDERS: ${file(./config/config.${self:provider.stage}.json):BD_ORDERS.CONEXTION_1.HOST}
-    DB_USER_1_ORDERS: ${file(./config/config.${self:provider.stage}.json):BD_ORDERS.CONEXTION_1.USER}
+    GMAIL_CONFIG_1_HOST: ${file(./config/config.${self:provider.stage}.json):EMAIL.GMAIL.CONFIG_1.HOST}
+    GMAIL_CONFIG_1_PORT: ${file(./config/config.${self:provider.stage}.json):EMAIL.GMAIL.CONFIG_1.PORT}
+    GMAIL_CONFIG_1_REQUIRETLS: ${file(./config/config.${self:provider.stage}.json):EMAIL.GMAIL.CONFIG_1.REQUIRETLS}
+    GMAIL_CONFIG_1_USER: ${file(./config/config.${self:provider.stage}.json):EMAIL.GMAIL.CONFIG_1.AUTH.USER}
+    GMAIL_CONFIG_1_PASS: ${file(./config/config.${self:provider.stage}.json):EMAIL.GMAIL.CONFIG_1.AUTH.PASS}
+    GMAIL_CONFIG_1_LOGGER: ${file(./config/config.${self:provider.stage}.json):EMAIL.GMAIL.CONFIG_1.LOGGER}
+    GMAIL_CONFIG_1_DEBUG: ${file(./config/config.${self:provider.stage}.json):EMAIL.GMAIL.CONFIG_1.DEBUG}
+    GMAIL_CONFIG_1_RECEIVER: ${file(./config/config.${self:provider.stage}.json):EMAIL.GMAIL.CONFIG_1.RECEIVER}
 
-    DB_HOST_2_ORDERS: ${file(./config/config.${self:provider.stage}.json):BD_ORDERS.CONEXTION_2.HOST}
-    DB_USER_2_ORDERS: ${file(./config/config.${self:provider.stage}.json):BD_ORDERS.CONEXTION_2.USER}
-
-    EMAIL_CONFIG_HOST: ${file(./config/config.${self:provider.stage}.json):EMAIL.CONFIG.HOST}
-    EMAIL_CONFIG_PORT: ${file(./config/config.${self:provider.stage}.json):EMAIL.CONFIG.PORT}
-    EMAIL_CONFIG_REQUIRETLS: ${file(./config/config.${self:provider.stage}.json):EMAIL.CONFIG.REQUIRETLS}
-    EMAIL_CONFIG_USER: ${file(./config/config.${self:provider.stage}.json):EMAIL.CONFIG.AUTH.USER}
-    EMAIL_CONFIG_PASS: ${file(./config/config.${self:provider.stage}.json):EMAIL.CONFIG.AUTH.PASS}
-    EMAIL_CONFIG_LOGGER: ${file(./config/config.${self:provider.stage}.json):EMAIL.CONFIG.LOGGER}
-    EMAIL_CONFIG_DEBUG: ${file(./config/config.${self:provider.stage}.json):EMAIL.CONFIG.DEBUG}
-    EMAIL_CONFIG_RECEIVER: ${file(./config/config.${self:provider.stage}.json):EMAIL.CONFIG.RECEIVER}
-
-    PATH_REPORT_CSV_TMP: ${file(./config/config.${self:provider.stage}.json):PROYECT_BODY.PATH.TMP}
-
-    BUCKET_CONFIG_S3FORCEPATHSTYLE: ${file(./config/config.${self:provider.stage}.json):BUCKET_S3_LOCAL.CONFIG.S3FORCEPATHSTYLE}
-    BUCKET_CONFIG_ACCESSKEYID: ${file(./config/config.${self:provider.stage}.json):BUCKET_S3_LOCAL.CONFIG.ACCESSKEYID}
-    BUCKET_CONFIG_SECRETACCESSKEY: ${file(./config/config.${self:provider.stage}.json):BUCKET_S3_LOCAL.CONFIG.SECRETACCESSKEY}
-    BUCKET_CONFIG_ENDPOINT: ${file(./config/config.${self:provider.stage}.json):BUCKET_S3_LOCAL.CONFIG.ENDPOINT}
-    BUCKET_CONFIG_PORT: ${file(./config/config.${self:provider.stage}.json):BUCKET_S3_LOCAL.CONFIG.PORT}
-    BUCKET_CONFIG_PROTOCOL: ${file(./config/config.${self:provider.stage}.json):BUCKET_S3_LOCAL.CONFIG.PROTOCOL}
-    BUCKET_CONFIG_DIRECTORY: ${file(./config/config.${self:provider.stage}.json):BUCKET_S3_LOCAL.CONFIG.DIRECTORY}
-
-    BUCKET_LIQ_PROC_1: ${file(./config/config.${self:provider.stage}.json):BUCKET_S3_LOCAL.PROJECT.LIQUIDACION.PROCESO_1.NOMBRE}
-    BUCKET_LIQ_PROC_2: ${file(./config/config.${self:provider.stage}.json):BUCKET_S3_LOCAL.PROJECT.LIQUIDACION.PROCESO_2.NOMBRE}
-    BUCKET_LIQ_PROC_3: ${file(./config/config.${self:provider.stage}.json):BUCKET_S3_LOCAL.PROJECT.LIQUIDACION.PROCESO_3.NOMBRE}
-    BUCKET_LIQ_PROC_SOPORTE: ${file(./config/config.${self:provider.stage}.json):BUCKET_S3_LOCAL.PROJECT.LIQUIDACION.PROCESO_SOPORTE.NOMBRE}
-
-    N_PENDIENTES_LIQUIDACION_FILE: ${file(./config/config.${self:provider.stage}.json):PROCESO_1.PATH.PENDIENTES_LIQUIDACION.NOMBRE}
-    N_SIN_CATEGORIA_FILE: ${file(./config/config.${self:provider.stage}.json):PROCESO_1.PATH.SIN_CATEGORIA.NOMBRE}
+    S3_CONFIG_S3FORCEPATHSTYLE: ${file(./config/config.${self:provider.stage}.json):PROJECT_CONFIG.BUCKET_S3_CONFIG.S3FORCEPATHSTYLE}
+    S3_CONFIG_ACCESSKEYID: ${file(./config/config.${self:provider.stage}.json):PROJECT_CONFIG.BUCKET_S3_CONFIG.ACCESSKEYID}
+    S3_CONFIG_SECRETACCESSKEY: ${file(./config/config.${self:provider.stage}.json):PROJECT_CONFIG.BUCKET_S3_CONFIG.SECRETACCESSKEY}
+    S3_CONFIG_ENDPOINT: ${file(./config/config.${self:provider.stage}.json):PROJECT_CONFIG.BUCKET_S3_CONFIG.ENDPOINT}
+    S3_CONFIG_PORT: ${file(./config/config.${self:provider.stage}.json):PROJECT_CONFIG.BUCKET_S3_CONFIG.PORT}
+    S3_CONFIG_PROTOCOL: ${file(./config/config.${self:provider.stage}.json):PROJECT_CONFIG.BUCKET_S3_CONFIG.PROTOCOL}
+    S3_CONFIG_DIRECTORY: ${file(./config/config.${self:provider.stage}.json):PROJECT_CONFIG.BUCKET_S3_CONFIG.DIRECTORY}
     
-    N_PENDIENTES_LIQUIDAR_FILE: ${file(./config/config.${self:provider.stage}.json):PROCESO_3.PATH.PENDIENTESLIQUIDAR.NOMBRE}
-    N_SALES_FILE: ${file(./config/config.${self:provider.stage}.json):PROCESO_3.PATH.SALES.NOMBRE}
-    N_SELLERS_FILE: ${file(./config/config.${self:provider.stage}.json):PROCESO_3.PATH.SELLERS.NOMBRE}
+    BUCKET_M_LIQUIDACION_FINAL_REPORTS: ${file(./config/config.${self:provider.stage}.json):PROJECT_CONFIG.MODULES.LIQUIDACION.PROCESO.FINAL_REPORTS.BUCKET_NAME}
+
+    N_LIQUIDACION_FINAL_REPORTS_PENDIENTES_LIQUIDAR_FILE: ${file(./config/config.${self:provider.stage}.json):PROJECT_CONFIG.MODULES.LIQUIDACION.PROCESO.FINAL_REPORTS.FILE_NAMES.PENDIENTESLIQUIDAR}
+    N_LIQUIDACION_FINAL_REPORTS_SALES_FILE: ${file(./config/config.${self:provider.stage}.json):PROJECT_CONFIG.MODULES.LIQUIDACION.PROCESO.FINAL_REPORTS.FILE_NAMES.SALES}
+    N_LIQUIDACION_FINAL_REPORTS_SELLERS_FILE: ${file(./config/config.${self:provider.stage}.json):PROJECT_CONFIG.MODULES.LIQUIDACION.PROCESO.FINAL_REPORTS.FILE_NAMES.SELLERS}
 
   apiKeys:
-    - ${file(./config/config.${self:provider.stage}.json):API_KEY}
+    - ${file(./config/config.${self:provider.stage}.json):AUTHORIZATION.X-API-KEY}
 
 functions:
 
@@ -144,7 +110,7 @@ functions:
     handler: lambdas/login/handler.generico
     events:
       - http:
-          path: /api/${self:custom.v_login}/auth/login
+          path: /api/${self:custom.v_login}/utils/auth/login
           method: POST
           private: true
 
@@ -153,52 +119,110 @@ functions:
     handler: lambdas/usuarios/createUser/handler.generico
     events:
       - http:
-          path: /api/${self:custom.v_create_user}/usuario/create-user
+          path: /api/${self:custom.v_create_user}/utils/usuario/create-user
           method: POST
           private: true
-          # authorizer:
-          #   name: auth
-          #   identitySource: method.request.header.token
-          # caching: # DESHABILITAR TIEMPO DE SEGURIDAD CACHÉ
-          #   enabled: false
-          # private: true
-          # cors:
-          #   origin:
-          #     - "*"
-          #   headers:
-          #     - Content-Type
-          #     - token
-          #     - X-Api-Key
+          authorizer:
+            name: authorizerToken
+            identitySource: method.request.header.token
+          caching: # DESHABILITAR TIEMPO DE SEGURIDAD CACHÉ
+            enabled: false
+          cors:
+            origin:
+              - "*"
+            headers:
+              - Content-Type
+              - token
+              - X-Api-Key
+
+  getUser:
+    description: Endpoint para obtener usuario.
+    handler: lambdas/usuarios/getUser/handler.generico
+    events:
+      - http:
+          path: /api/${self:custom.v_get_user}/utils/usuario/get-user/
+          method: GET
+          private: true
+          authorizer:
+            name: authorizerToken
+            identitySource: method.request.header.token
+          caching: # DESHABILITAR TIEMPO DE SEGURIDAD CACHÉ
+            enabled: false
+          cors:
+            origin:
+              - "*"
+            headers:
+              - Content-Type
+              - token
+              - X-Api-Key
 
 resources:
   Resources:
-    BucketsS3_Liq_Proc_1:
-      Type: AWS::S3::Bucket
-      Properties:
-        BucketName: ${file(./config/config.${self:provider.stage}.json):BUCKET_S3_LOCAL.PROJECT.LIQUIDACION.PROCESO_1.NOMBRE}
-    BucketsS3_Liq_Proc_2:
-      Type: AWS::S3::Bucket
-      Properties:
-        BucketName: ${file(./config/config.${self:provider.stage}.json):BUCKET_S3_LOCAL.PROJECT.LIQUIDACION.PROCESO_2.NOMBRE}
-    BucketsS3_Liq_Proc_3:
-      Type: AWS::S3::Bucket
-      Properties:
-        BucketName: ${file(./config/config.${self:provider.stage}.json):BUCKET_S3_LOCAL.PROJECT.LIQUIDACION.PROCESO_3.NOMBRE}
-    BucketsS3_Liq_Proc_Soporte:
-      Type: AWS::S3::Bucket
-      Properties:
-        BucketName: ${file(./config/config.${self:provider.stage}.json):BUCKET_S3_LOCAL.PROJECT.LIQUIDACION.PROCESO_SOPORTE.NOMBRE}
-    UserTableDB:
+
+    # UserTable:
+    #   Type: AWS::DynamoDB::Table
+    #   Properties:
+    #     TableName: ${file(./config/config.${self:provider.stage}.json):DATA_BASE_CREATION.AWS.DYNAMODB.TABLES.USUARIO}
+    #     AttributeDefinitions:
+    #       - AttributeName: email
+    #         AttributeType: S
+    #     KeySchema:
+    #       - AttributeName: email
+    #         KeyType: HASH
+    #     ProvisionedThroughput:
+    #       ReadCapacityUnits: 5
+    #       WriteCapacityUnits: 5
+    #     BillingMode: PAY_PER_REQUEST
+
+    UserTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: ${file(./config/config.${self:provider.stage}.json):DB_TABLES.USUARIO}
+        TableName: ${file(./config/config.${self:provider.stage}.json):DATA_BASE_CREATION.AWS.DYNAMODB.TABLES.USUARIO}
         AttributeDefinitions:
           - AttributeName: email
+            AttributeType: S
+          - AttributeName: business
+            AttributeType: N
+          - AttributeName: country
+            AttributeType: N
+          - AttributeName: clave
+            AttributeType: S
+          - AttributeName: deletedAt
             AttributeType: S
         KeySchema:
           - AttributeName: email
             KeyType: HASH
+          - AttributeName: business
+            KeyType: RANGE
         ProvisionedThroughput:
           ReadCapacityUnits: 5
           WriteCapacityUnits: 5
+        LocalSecondaryIndexes:
+          - IndexName: "LSI_Utils"
+            KeySchema:
+            - AttributeName: "email"
+              KeyType: "HASH"
+            - AttributeName: "country"
+              KeyType: "RANGE"
+            Projection:
+              NonKeyAttributes: []
+              ProjectionType: "ALL"
+          - IndexName: "LSI_Clave"
+            KeySchema:
+            - AttributeName: "email"
+              KeyType: "HASH"
+            - AttributeName: "clave"
+              KeyType: "RANGE"
+            Projection:
+              NonKeyAttributes: []
+              ProjectionType: "ALL"
+          - IndexName: "LSI_DeleteAt"
+            KeySchema:
+            - AttributeName: "email"
+              KeyType: "HASH"
+            - AttributeName: "deletedAt"
+              KeyType: "RANGE"
+            Projection:
+              NonKeyAttributes: []
+              ProjectionType: "ALL"
         BillingMode: PAY_PER_REQUEST

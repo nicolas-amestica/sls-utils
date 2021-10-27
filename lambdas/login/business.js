@@ -14,7 +14,7 @@ module.exports.login = async (event) => {
         if (!email || !password)
             return Responses._400({ error: 'Usuario o contraseña incorrectos.' });
 
-        const { state, ...user } = await Dynamo.get(email.toUpperCase().trim(), process.env.TABLE_USUARIO);
+        const { state, ...user } = await Dynamo.get(email.toUpperCase().trim(), process.env.TABLE_USUARIO_DYNAMODB);
 
         // VERIFICA QUE HAYAN RESULTADOS
         if (!user) 
